@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 200px;
+        }
+        button {
+            padding: 8px 12px;
+            cursor: pointer;
+            background-color: #333;
+            color: #fff;
+            border: none;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        .task {
+            margin-bottom: 8px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+        }
+        .task span {
+            flex: 1;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .icons {
+            display: flex;
+            align-items: center;
+        }
+        .icons a {
+            margin-left: 10px;
+            color: #333;
+        }
+        .download-btn {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .download-btn button {
+            padding: 10px 20px;
+            background-color: #ff6600;
+            color: #fff;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Task Manager</h1>
+        <form method="POST" action="/">
+            <input type="text" name="title" placeholder="Task name" required>
+            <input type="text" name="description" placeholder="Description">
+            <button type="submit"><i class="fas fa-plus"></i></button>
+        </form>
+        <ul>
+            {% for task in tasks %}
+                <li class="task {% if task.completed %}completed{% endif %}">
+                    <span>{{ task.title }} {% if task.description %} - {{ task.description }} {% endif %}</span>
+                    <div class="icons">
+                        {% if not task.completed %}
+                            <a href="/complete/{{ task.id }}"><i class="far fa-check-circle"></i></a>
+                        {% endif %}
+                        <a href="/delete/{{ task.id }}"><i class="far fa-trash-alt"></i></a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+        <div class="download-btn">
+            <a href="/download_excel"><button>Download the report in Excel</button></a>
+        </div>
+    </div>
+</body>
+</html>
