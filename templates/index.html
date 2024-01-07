@@ -4,100 +4,108 @@
     <meta charset="UTF-8">
     <title>Task Manager</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-        .container {
-            width: 80%;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-        }
-        form {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        input[type="text"] {
-            padding: 8px;
-            width: 200px;
-        }
-        button {
-            padding: 8px 12px;
-            cursor: pointer;
-            background-color: #333;
-            color: #fff;
-            border: none;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        .task {
-            margin-bottom: 8px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            display: flex;
-            align-items: center;
-        }
-        .task span {
-            flex: 1;
-        }
-        .completed {
-            text-decoration: line-through;
-            color: #888;
-        }
-        .icons {
-            display: flex;
-            align-items: center;
-        }
-        .icons a {
-            margin-left: 10px;
-            color: #333;
-        }
-        .download-btn {
-            text-align: center;
-            margin-top: 30px;
-        }
-        .download-btn button {
-            padding: 10px 20px;
-            background-color: #ff6600;
-            color: #fff;
-            border: none;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <div class="container">
         <h1>Task Manager</h1>
-        <form method="POST" action="/">
+        <form id="addTaskForm" method="POST" action="/">
             <input type="text" name="title" placeholder="Task name" required>
             <input type="text" name="description" placeholder="Description">
             <button type="submit"><i class="fas fa-plus"></i></button>
         </form>
-        <ul>
-            {% for task in tasks %}
-                <li class="task {% if task.completed %}completed{% endif %}">
-                    <span>{{ task.title }} {% if task.description %} - {{ task.description }} {% endif %}</span>
-                    <div class="icons">
-                        {% if not task.completed %}
-                            <a href="/complete/{{ task.id }}"><i class="far fa-check-circle"></i></a>
-                        {% endif %}
-                        <a href="/delete/{{ task.id }}"><i class="far fa-trash-alt"></i></a>
-                    </div>
-                </li>
-            {% endfor %}
+        <div class="sort-dropdown">
+            <select id="sortSelect" onchange="sortTasks()">
+                <option disabled selected hidden>Sort by</option>
+                <option value="all">Show All</option>
+                <option value="completed">Show Completed</option>
+                <option value="notCompleted">Show Not Completed</option>
+                <option value="alphabetically">Sort Alphabetically</option>
+            </select>
+        </div>
+        <ul id="tasksList">ф
+            <!-- Tasks will be dynamically loaded here -->
         </ul>
         <div class="download-btn">
             <a href="/download_excel"><button>Download the report in Excel</button></a>
         </div>
     </div>
+    <script>
+        function sortTasks() {
+            const criteria = document.getElementById('sortSelect').value;
+            fetch(`/sort_tasks/${criteria}`)
+                .then(response => response.json())
+                .then(data => displayTasks(data.tasks, criteria));
+        }
+
+        function displayTasks(tasks, criteria) {
+            const tasksList = document.getElementById('tasksList');
+            tasksList.innerHTML = '';
+
+            tasks.forEach(task => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('task');
+                if (task.completed) {
+                    listItem.classList.add('completed');
+                }
+
+                const taskText = document.createElement('span');
+                taskText.textContent = `${task.title}${task.description ? ' - ' + task.description : ''}`;
+                listItem.appendChild(taskText);
+
+                const iconsDiv = document.createElement('div');
+                iconsDiv.classList.add('icons');
+                if (!task.completed) {
+                    const completeLink = document.createElement('a');
+                    completeLink.href = `/complete/${task.id}`;
+                    completeLink.innerHTML = '<i class="far fa-check-circle"></i>';
+                    iconsDiv.appendChild(completeLink);
+                }
+                const deleteLink = document.createElement('a');
+                deleteLink.href = `/delete/${task.id}`;
+                deleteLink.innerHTML = '<i class="far fa-trash-alt"></i>';
+                iconsDiv.appendChild(deleteLink);
+
+                listItem.appendChild(iconsDiv);
+                tasksList.appendChild(listItem);
+            });
+
+            // Highlight the selected sort option
+            const sortOptions = document.querySelectorAll('#sortSelect option');
+            sortOptions.forEach(option => {
+                if (option.value === criteria) {
+                    option.setAttribute('selected', 'selected');
+                    option.dataset.selected = true;
+                } else {
+                    option.removeAttribute('selected');
+                    option.dataset.selected = false;
+                }
+            });
+        }
+
+        // Load all tasks initially
+        window.onload = function() {
+            sortTasks();
+        };
+    </script>
+    <script>
+        function updateDownloadLink(criteria) {
+            var downloadLink = document.getElementById('downloadLink');
+            var linkText = '';
+
+            if (criteria === 'all') {
+                linkText = 'Download All in Excel';
+            } else if (criteria === 'completed') {
+                linkText = 'Download Completed in Excel';
+            } else if (criteria === 'notCompleted') {
+                linkText = 'Download Not Completed in Excel';
+            } else if (criteria === 'alphabetically') {
+                linkText = 'Download Alphabetically in Excel';
+            }
+
+            downloadLink.href = '/download_excel?criteria=' + criteria;
+            downloadLink.innerHTML = '<button>' + linkText + '</button>';
+        }
+    </script>
 </body>
 </html>
