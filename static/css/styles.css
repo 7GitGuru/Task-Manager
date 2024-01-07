@@ -1,0 +1,195 @@
+/* Общие стили */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #222;
+    color: #fff;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 40px 20px;
+    background-color: #333;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #ff6600;
+}
+
+/* Форма добавления задачи */
+form {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Выравнивание по верхнему краю */
+    flex-wrap: wrap; /* Для переноса элементов на новую строку */
+}
+
+input[type="text"] {
+    padding: 14px;
+    width: 300px; /* Увеличение ширины поля ввода */
+    border-radius: 8px; /* Более выразительные углы */
+    border: 2px solid #2196F3; /* Подчеркивание поля ввода */
+    background-color: #333; /* Цвет фона поля ввода */
+    color: #fff;
+    margin: 0 10px 10px 0; /* Отступы между полями ввода */
+    transition: all 0.3s ease;
+}
+
+input[type="text"]::placeholder {
+    color: #888;
+}
+
+button {
+    padding: 14px 24px;
+    cursor: pointer;
+    background-color: #2196F3;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    margin-top: 0px; /* Отступ кнопки "Добавить" сверху */
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background-color: #0b7dda;
+    transform: translateY(-3px);
+}
+
+/* Список задач */
+.task {
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #444;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    list-style: none;
+    counter-increment: task-counter;
+}
+
+.task::before {
+    content: counter(task-counter) ". ";
+    font-weight: bold;
+    margin-right: 5px;
+    text-decoration: none; /* Убираем зачеркивание */
+    transition: color 0.3s ease; /* Анимация цвета номера */
+}
+
+.task:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.completed::before {
+    color: #8BC34A; /* Цвет номера выполненной задачи */
+}
+
+.task:not(.completed)::before {
+    color: #f44336; /* Цвет номера невыполненной задачи */
+}
+
+.task span {
+    flex: 1;
+    margin-right: 20px;
+    font-size: 18px;
+}
+
+.completed span {
+    text-decoration: line-through; /* Зачеркиваем только текст, а не номер */
+    color: #888;
+}
+
+/* Иконки */
+.icons {
+    display: flex;
+    align-items: center;
+}
+
+.icons a {
+    margin-left: 10px;
+    color: #2196F3;
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+.icons a:hover {
+    transform: scale(1.2);
+    color: #0b7dda;
+}
+
+/* Кнопка загрузки отчета */
+.download-btn {
+    text-align: right; /* Выравнивание вправо */
+    margin-top: 10px; /* Уменьшенный отступ сверху */
+}
+
+.download-btn button {
+    padding: 14px 24px;
+    background-color: #2196F3;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.download-btn button:hover {
+    background-color: #0b7dda;
+    transform: translateY(-3px);
+}
+
+/* Иконки */
+.fa-plus,
+.fa-check-circle,
+.fa-trash-alt {
+    font-size: 18px;
+}
+
+/* Обвести выпадающий список */
+#sortSelect {
+    appearance: none;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f2f2f2;
+    cursor: pointer;
+    width: 160px; /* Уменьшаем длину */
+    padding-right: 20px; /* Расстояние для стрелочки вниз */
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 14l6-6H4l6 6z"/></svg>'); /* Стрелочка вниз */
+    background-repeat: no-repeat;
+    background-position: right center;
+    text-align: left; /* Выравнивание по левому краю */
+    margin-left: 40px;
+    padding-left: 10px; /* Добавление отступа */
+    margin-bottom: 10px; /* Добавляем отступ снизу */
+}
+
+/* Увеличить размер шрифта */
+#sortSelect option {
+    padding: 8px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+/* Подсветка выбранной опции */
+#sortSelect option[data-selected="true"] {
+    background-color: #a0a0a0; /* Насыщенная серая подсветка */
+    position: relative;
+}
+
+/* Скрыть опцию "Sort by" из выпадающего списка */
+#sortSelect option[data-default="true"] {
+    display: none;
+}
+
