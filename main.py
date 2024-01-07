@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, send_file
 from flask_sqlalchemy import SQLAlchemy
 import pandas as pd
 from io import BytesIO
+from flask import jsonify
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
@@ -46,18 +48,29 @@ def delete(task_id):
 @app.route('/download_excel')
 def download_excel():
     all_tasks = Task.query.all()
-    completed_tasks = [task for task in all_tasks if task.completed]
-    incomplete_tasks = [task for task in all_tasks if not task.completed]
 
     excel_file = BytesIO()
     with pd.ExcelWriter(excel_file, engine='xlsxwriter') as writer:
-        df_completed = pd.DataFrame(
-            [{'Title': task.title, 'Description': task.description} for task in completed_tasks])
-        df_completed.to_excel(writer, index=False, sheet_name='Done')
+        workbook = writer.book
+        bold_format = workbook.add_format({'bold': True})
 
-        df_incomplete = pd.DataFrame(
-            [{'Title': task.title, 'Description': task.description} for task in incomplete_tasks])
-        df_incomplete.to_excel(writer, index=False, sheet_name='Not done')
+        worksheet = workbook.add_worksheet('All Tasks')
+
+        # Установка ширины колонок в таблице Excel
+        worksheet.set_column('A:C', 20)
+
+        # Заголовки таблицы
+        headers = ['Status', 'Title', 'Description']
+
+        # Запись заголовков таблицы
+        for col, header in enumerate(headers):
+            worksheet.write(0, col, header, bold_format)
+
+        # Запись данных в таблицу Excel
+        for idx, task in enumerate(all_tasks, start=1):
+            status = 'Completed' if task.completed else 'Not Completed'
+            task_data = [status, task.title, task.description]
+            worksheet.write_row(idx, 0, task_data)
 
     excel_file.seek(0)
     return send_file(
@@ -67,6 +80,25 @@ def download_excel():
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
+@app.route('/sort_tasks/<criteria>')
+def sort_tasks(criteria):
+    if criteria == 'alphabetically':
+        sorted_tasks = Task.query.order_by(Task.title).all()
+    elif criteria == 'completed':
+        sorted_tasks = Task.query.filter_by(completed=True).all()
+    elif criteria == 'notCompleted':
+        sorted_tasks = Task.query.filter_by(completed=False).all()
+    else:
+        sorted_tasks = Task.query.all()
+
+    tasks = [{
+        'id': task.id,
+        'title': task.title,
+        'description': task.description,
+        'completed': task.completed
+    } for task in sorted_tasks]
+
+    return jsonify({'tasks': tasks})
 
 if __name__ == '__main__':
     with app.app_context():
